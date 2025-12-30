@@ -10,6 +10,12 @@ app.get('/api/developers', (req, res) => {
             lastname: "egbaria",
             id: 123456789,
             email: "muhamad@example.com"
+        },
+        {
+            firstname: "amit",
+            lastname: "or",
+            id: 206616401,
+            email: "selwordamit@gmail.com"
         }
     ]);
 });
