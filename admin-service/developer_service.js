@@ -8,8 +8,8 @@ app.get('/api/developers', (req, res) => {
         {
             firstname: "muhamad",
             lastname: "egbaria",
-            id: 123456789,
-            email: "muhamad@example.com"
+            id: 207929019,
+            email: "egm621349@gmail.com"
         },
         {
             firstname: "amit",
