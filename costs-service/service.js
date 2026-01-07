@@ -12,6 +12,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const Cost = require('../models/Cost');
 const Report = require('../models/Report');
 const Log = require('../models/Log');
+const User = require('../models/User');
 
 const app = express();
 app.use(express.json());
@@ -44,6 +45,18 @@ mongoose.connect(process.env.MONGODB_URI)
 app.post('/api/add', async (req, res) => {
     try {
         const { description, category, userid, sum, date } = req.body;
+
+        // Basic validation
+        if (!description || !category || !userid || !sum) {
+            return res.status(400).json({ id: 400, message: 'Missing required fields' });
+        }
+
+        // Verify user exists
+        const existingUser = await User.findOne({ id: Number(userid) });
+        if (!existingUser) {
+            return res.status(400).json({ id: 400, message: 'User does not exist' });
+        }
+
         const costDate = date ? new Date(date) : new Date();
 
         // Disallow adding costs with dates in the past
@@ -55,7 +68,7 @@ app.post('/api/add', async (req, res) => {
         const newCost = new Cost({
             description,
             category,
-            userid,
+            userid: Number(userid),
             sum,
             year: costDate.getFullYear(),
             month: costDate.getMonth() + 1,
@@ -64,7 +77,6 @@ app.post('/api/add', async (req, res) => {
 
         await newCost.save();
 
-        // Return clean JSON (no _id/__v)
         res.status(201).json({
             userid: newCost.userid,
             description: newCost.description,
@@ -79,6 +91,7 @@ app.post('/api/add', async (req, res) => {
         res.status(400).json({ id: 400, message: error.message });
     }
 });
+
 
 /*
  * GET /api/report implements Computed Design Pattern:
