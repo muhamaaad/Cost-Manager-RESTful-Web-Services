@@ -12,19 +12,15 @@ const app = express();
 
 // GET /api/developers: returns the list of project developers
 // The response includes only developer identification details as defined by the project requirements
-app.get('/api/developers', (req, res) => {
+app.get('/api/about', (req, res) => {
     res.status(200).json([
         {
-            firstname: "muhamad",
-            lastname: "egbaria",
-            id: 207929019,
-            email: "egm621349@gmail.com"
+            first_name: "muhamad",
+            last_name: "egbaria"
         },
         {
-            firstname: "amit",
-            lastname: "or",
-            id: 206616401,
-            email: "selwordamit@gmail.com"
+            first_name: "amit",
+            last_name: "or"
         }
     ]);
 });
