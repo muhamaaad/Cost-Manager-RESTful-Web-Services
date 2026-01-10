@@ -70,8 +70,7 @@ app.get('/api/logs', async (req, res) => {
         res.status(500).json({ id: 500, message: error.message });
     }
 });
-
-const PORT = 3003;
+const PORT = process.env.PORT || 3003;
 
 // Start server only when running directly (not during unit tests)
 if (require.main === module) {

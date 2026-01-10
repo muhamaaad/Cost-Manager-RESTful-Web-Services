@@ -170,7 +170,7 @@ app.get('/api/report', async (req, res) => {
   }
 });
 
-const PORT = 3002;
+const PORT = process.env.PORT || 3002;
 
 // Start server only when running directly (not during unit tests)
 if (require.main === module) {
