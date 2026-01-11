@@ -1,37 +1,37 @@
 # Cost Manager – Microservices Backend
 
+---
+
 ## Project Overview
 
-This project is a **Node.js-based Microservices backend system** designed for managing users, costs, logs, and administrative metadata. Each service is implemented and deployed independently, following Microservices architecture principles, while sharing a single MongoDB Atlas cluster.
-
-The system was built with scalability, separation of concerns, and observability in mind. It is suitable for academic projects as well as real-world backend service design.
+This project is a Node.js-based Microservices backend system designed for managing users, costs, logs, and administrative metadata. Each service is implemented and deployed independently, following Microservices architecture principles, while sharing a single MongoDB Atlas cluster.
 
 ---
 
 ## Services
 
-The system consists of **four independent web services**:
+The system consists of four independent web services:
 
-1. **Users Service** – Manages users and user-related data.
-2. **Costs Service** – Manages costs and generates monthly reports using the **Computed Design Pattern**.
-3. **Admin (About) Service** – Provides administrative and system metadata endpoints.
-4. **Logs Service** – Tracks and stores HTTP request logs across the system.
-
-Each service:
-
-* Runs as a **separate Node.js process**
-* Is deployed independently on **Render**
-* Connects to the same **MongoDB Atlas cluster**
+* **Users Service:** Manages users and user-related data.
+* **Costs Service:** Manages costs and generates monthly reports using the **Computed Design Pattern**.
+* **Admin (About) Service:** Provides administrative and system metadata.
+* **Logs Service:** Tracks and stores HTTP request logs across the system using **Pino**.
 
 ---
 
 ## Architecture
 
-* **Microservices Architecture**
-* 4 independent Express applications
+**Microservices / Four-Processes Architecture**
+
+This project follows a four-process architecture as required by the course specification. Each process is implemented as an independent Express application and deployed separately.
+
+**Design Rationale:**
+This architecture was chosen to improve scalability, separation of concerns, and independent development, testing, and deployment of each process.
+
+* 4 independent Express applications (Users, Costs, Admin, Logs)
 * Shared MongoDB Atlas database
 * No tight coupling between services
-* Each service can be deployed, scaled, and tested independently
+* Each process can be deployed, scaled, and tested independently
 
 ```
 Client
@@ -46,154 +46,111 @@ Client
 
 ---
 
-## Tech Stack
-
-* **Node.js** – Runtime environment
-* **Express.js** – Web framework
-* **MongoDB Atlas** – Cloud database
-* **Mongoose** – ODM for MongoDB
-* **Pino** – High-performance logging (Logs Service)
-* **Jest** – Testing framework
-
----
-
 ## API Endpoints
 
 ### Users Service
 
-Base URL: `/users`
+**Base URL:** `https://cost-manager-restful-web-services-0y3y.onrender.com`
 
-| Method | Endpoint     | Description       |
-| ------ | ------------ | ----------------- |
-| GET    | `/users`     | Get all users     |
-| GET    | `/users/:id` | Get user by ID    |
-| POST   | `/users`     | Create a new user |
-| PUT    | `/users/:id` | Update user       |
-| DELETE | `/users/:id` | Delete user       |
+* `GET /api/users` – Get all users
+* `GET /api/users/:id` – Get user details including total costs
+* `POST /api/add` – Create a new user
 
 ---
 
 ### Costs Service
 
-Base URL: `/costs`
+**Base URL:** `https://cost-manager-costs-service.onrender.com`
 
-| Method | Endpoint         | Description                      |
-| ------ | ---------------- | -------------------------------- |
-| POST   | `/costs`         | Add a new cost entry             |
-| GET    | `/costs`         | Get all costs                    |
-| GET    | `/costs/monthly` | Get computed monthly cost report |
+* `POST /api/add` – Add a new cost entry
+* `GET /api/report` – Get computed monthly cost report
+  **Query Parameters:** `id`, `year`, `month`
 
-**Design Note:**
+**Supported Cost Categories:**
+food, health, housing, sports, education
 
-* Monthly reports are generated using the **Computed Design Pattern** rather than stored directly in the database.
+**Computed Design Pattern:**
+When a monthly report is requested for a past month, the report is cached and reused for future requests. Adding costs with dates that belong to the past is not allowed.
 
 ---
 
-### Admin (About) Service
+### Admin Service
 
-Base URL: `/admin`
+**Base URL:** `https://cost-manager-admin-service.onrender.com`
 
-| Method | Endpoint       | Description                 |
-| ------ | -------------- | --------------------------- |
-| GET    | `/admin/about` | System and project metadata |
+* `GET /api/about` – System and developer metadata
+
+**Developers Team Data:**
+Developers information is not stored in the database and is either hardcoded or loaded from environment variables, as required.
 
 ---
 
 ### Logs Service
 
-Base URL: `/logs`
+**Base URL:** `https://cost-manager-logs-service.onrender.com`
 
-| Method | Endpoint | Description               |
-| ------ | -------- | ------------------------- |
-| GET    | `/logs`  | Retrieve stored HTTP logs |
+* `GET /api/logs` – Retrieve stored HTTP logs
 
 **Logging Details:**
 
-* Uses **Pino** middleware
-* Logs every HTTP request
-* Persists logs in MongoDB
+* All services use **Pino middleware** to log every incoming HTTP request
+* Each request is persisted in MongoDB via the Logs Service
+* Additional log entries are created when endpoints are accessed
+
+---
+
+## Tech Stack
+
+* **Node.js** & **Express.js**
+* **MongoDB Atlas** & **Mongoose**
+* **Pino** (Logging)
+* **Jest** & **Supertest** (Testing)
+
+---
+
+## Validation
+
+All incoming requests are validated before being processed. Invalid requests return a JSON error object containing at least `id` and `message` properties.
 
 ---
 
 ## Installation and Setup
 
-### Prerequisites
-
-* Node.js (v18+ recommended)
-* npm
-* MongoDB Atlas cluster
-
----
-
 ### Environment Variables
 
-Create a `.env` file in the root of each service:
+Each service requires a `.env` file with the following variable:
 
-```env
-PORT=3000
-MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/cost-manager
 ```
-
----
-
-### Install Dependencies
-
-From the root directory:
-
-```bash
-npm install
+MONGODB_URI=your_mongodb_connection_string
 ```
-
-Repeat for each service if managed separately.
 
 ---
 
 ### Running Services Locally
 
-Each service can be started independently:
-
-```bash
-node service.js
-```
-
-Or with nodemon:
-
-```bash
-npx nodemon service.js
-```
+* **Users Service:** `node server.js`
+* **Costs Service:** `node service.js`
+* **Admin Service:** `node developer_service.js`
+* **Logs Service:** `node logs_service.js`
 
 ---
 
-### Running Tests
+## Testing
 
-Tests are written using **Jest**:
+Run unit tests using Jest:
 
-```bash
+```
 npm test
 ```
 
-Each service contains its own `*.test.js` files.
+**Testing Scope:**
 
----
-
-## Deployment
-
-* Each service is deployed independently on **Render**
-* Environment variables are configured per service
-* All services connect to the same MongoDB Atlas cluster
-
----
-
-## Notes
-
-* The system follows best practices for service separation
-* Logging is centralized via the Logs Service
-* Monthly reports are computed dynamically for consistency
+* Unit tests cover core REST API endpoints
+* Tests validate expected HTTP status codes and JSON responses
 
 ---
 
 ## Author
 
-Cost Manager Backend Project Team  
+Cost Manager Backend Project Team
 Asynchronous Server-Side Development Course
-
