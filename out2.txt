@@ -1,0 +1,36 @@
+a=https://cost-manager-logs-service.onrender.com
+b=https://cost-manager-restful-web-services-0y3y.onrender.com
+c=https://cost-manager-costs-service.onrender.com
+d=https://cost-manager-admin-service.onrender.com
+
+testing getting the about
+-------------------------
+url=https://cost-manager-admin-service.onrender.com/api/about/
+data.status_code=200
+b'[{"first_name":"muhamad","last_name":"egbaria"},{"first_name":"amit","last_name":"or"}]'
+data.text=[{"first_name":"muhamad","last_name":"egbaria"},{"first_name":"amit","last_name":"or"}]
+[{'first_name': 'muhamad', 'last_name': 'egbaria'}, {'first_name': 'amit', 'last_name': 'or'}]
+
+
+testing getting the report - 1
+------------------------------
+url=https://cost-manager-costs-service.onrender.com/api/report/?id=123123&year=2026&month=1
+data.status_code=200
+b'{"userid":123123,"year":2026,"month":1,"costs":[{"food":[]},{"health":[]},{"housing":[]},{"sports":[]},{"education":[]}]}'
+data.text={"userid":123123,"year":2026,"month":1,"costs":[{"food":[]},{"health":[]},{"housing":[]},{"sports":[]},{"education":[]}]}
+
+
+testing adding cost item
+----------------------------------
+url=https://cost-manager-costs-service.onrender.com/api/add/
+data.status_code=201
+b'{"userid":123123,"description":"milk 9","category":"food","sum":8,"year":2026,"month":1,"day":22}'
+
+
+testing getting the report - 2
+------------------------------
+url=https://cost-manager-costs-service.onrender.com/api/report/?id=123123&year=2026&month=1
+data.status_code=200
+b'{"userid":123123,"year":2026,"month":1,"costs":[{"food":[{"sum":8,"description":"milk 9","day":22}]},{"health":[]},{"housing":[]},{"sports":[]},{"education":[]}]}'
+data.text={"userid":123123,"year":2026,"month":1,"costs":[{"food":[{"sum":8,"description":"milk 9","day":22}]},{"health":[]},{"housing":[]},{"sports":[]},{"education":[]}]}
+
